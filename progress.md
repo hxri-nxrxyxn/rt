@@ -1,0 +1,41 @@
+# Project Progress - litert-wrap
+
+## 2026-05-09
+- Initialized project.
+- Configured global rules: use `uv` for Python and maintain `progress.md`.
+- Phase 1: Project Setup & CLI Skeleton completed.
+    - Initialized project with `uv`.
+    - Added dependencies: `fastapi`, `huggingface-hub`, `litert-lm-api-nightly`, `pydantic`, `typer`, `uvicorn`.
+    - Created CLI skeleton in `src/litert_wrap/cli.py`.
+    - Configured `litert-wrap` entry point in `pyproject.toml`.
+- Phase 2: Model Management completed.
+    - Implemented `pull` command to download `.litertlm` models from Hugging Face.
+    - Implemented `list` command to show downloaded models in `./models`.
+    - Verified with `litert-community/gemma-4-E2B-it-litert-lm`.
+- Phase 3: Local Inference completed.
+    - Implemented `run` command for interactive chat in the terminal.
+    - Supports `gpu` (default) or `cpu` backend via `--no-gpu` flag.
+    - Uses `litert_lm.Engine` and `conversation.send_message_async` for streaming.
+- Phase 4: OpenAI Compatible Server completed.
+    - Implemented FastAPI server in `src/litert_wrap/server.py`.
+    - Supports `/v1/chat/completions` with streaming.
+    - Handles model resolution from the local `./models` directory.
+    - Added `serve` command to the CLI.
+- Tool Calling Support:
+    - Implemented dynamic tool loading from the `tools/` directory.
+    - Models automatically use Python functions defined in `tools/*.py` if they have docstrings and type hints.
+    - Integrated tool support into both `run` and `serve` commands.
+- Final Verification:
+    - Verified model loading on CPU (handled auto-fallback).
+    - Verified FastAPI server responsiveness (unblocked event loop).
+    - Verified OpenAI-compatible `/v1/chat/completions` endpoint for both text and tool-based queries.
+- TUI Support:
+    - Implemented a Textual-based TUI in `src/litert_wrap/tui.py`.
+    - Added `tui` command and updated `run` command to launch TUI if no model is specified.
+    - Features a model selector screen and a dedicated chat screen with background inference.
+- Advanced TUI Enhancements:
+    - Added real-time streaming of **Gemma 4 Reasoning/Thinking** tokens.
+    - Added a toggle for Thinking Mode (Hotkey: `T`).
+    - Added live performance metrics tracking (TTFT, Backend, and Speed in tokens/sec).
+    - Added busy-state handling to disable input during model response.
+    - Fixed TUI display logic to prevent "word-per-line" streaming.
