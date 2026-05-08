@@ -15,18 +15,30 @@ var runCmd = &cobra.Command{
 	Short: "Run a model interactively",
 	Args:  cobra.MaximumNArgs(1),
 	Run: func(cmd *cobra.Command, args []string) {
-		var modelPath string
 		if len(args) == 0 {
-			// In the future, launch TUI here.
-			// For now, ask to specify.
 			fmt.Println("Please specify a model path. (e.g. rt run ./models/model.litertlm)")
 			return
 		}
-		modelPath = args[0]
+		modelPath := args[0]
 		backend, _ := cmd.Flags().GetString("backend")
+		promptFlag, _ := cmd.Flags().GetString("prompt")
 		
-		fmt.Printf("Loading model %s on %s...\n", modelPath, backend)
 		e := engine.NewEngine(modelPath, backend)
+
+		if promptFlag != "" {
+			ch, err := e.Stream(promptFlag)
+			if err != nil {
+				fmt.Printf("Error: %v\n", err)
+				os.Exit(1)
+			}
+			for token := range ch {
+				fmt.Print(token)
+			}
+			fmt.Println()
+			return
+		}
+
+		fmt.Printf("Loading model %s on %s...\n", modelPath, backend)
 
 		reader := bufio.NewReader(os.Stdin)
 		fmt.Println("Chat started! Type 'exit' or 'quit' to stop.")
@@ -62,5 +74,6 @@ var runCmd = &cobra.Command{
 
 func init() {
 	runCmd.Flags().StringP("backend", "b", "cpu", "Backend to use (cpu/gpu)")
+	runCmd.Flags().StringP("prompt", "p", "", "Single prompt to run")
 	rootCmd.AddCommand(runCmd)
 }
